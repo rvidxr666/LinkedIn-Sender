@@ -1,9 +1,6 @@
 package com.example.app;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -11,6 +8,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.time.temporal.TemporalUnit;
+import java.util.Arrays;
 import java.util.List;
 
 public class Crawler {
@@ -28,7 +26,7 @@ public class Crawler {
         this.driver = this.initializeSelenium();
     }
 
-    public void startCrawling() throws MissingRegionException {
+    public void startCrawling() throws InterruptedException {
         this.driver.get(this.url);
         this.loginToWebsite();
         this.getPeople();
@@ -64,26 +62,27 @@ public class Crawler {
     }
 
     // filter by Country and Department
-    private void getPeople() throws MissingRegionException {
+    private void getPeople() throws InterruptedException {
         this.searchBar();
         this.filterPeople();
     }
 
 
-    private void filterPeople() throws MissingRegionException {
+    private void filterPeople() throws InterruptedException {
         this.findElementByXPathWait("//button[text()='People']", 20).click();
         this.findElementByXPathWait("//button[text()='Locations']", 20).click();
+        this.inputRegion();
 
         // input Add a location
-        WebElement locationInput =  this.findElementByXPathWait(
-                "//input[@aria-label='Add a location']", 20);
-
-        locationInput.sendKeys("Toronto, Canada"); // Need to add a country and city as an input parameter
-
-        // Find the region options provided by LinkedIn
-        this.findElementsByXPathWait(
-                "//div[contains(@class, 'triggered-content')]//div[contains(@id, 'basic-result')]", 20)
-                .get(0).click();
+//        WebElement locationInput =  this.findElementByXPathWait(
+//                "//input[@aria-label='Add a location']", 20);
+//
+//        locationInput.sendKeys("Toronto, Canada"); // Need to add a country and city as an input parameter
+//
+//        // Find the region options provided by LinkedIn
+//        this.findElementsByXPathWait(
+//                "//div[contains(@class, 'triggered-content')]//div[contains(@id, 'basic-result')]", 20)
+//                .get(0).click();
 
 //        if (targetRegion == null) {
 //            throw new MissingRegionException("Provided region is not supported!");
@@ -106,7 +105,38 @@ public class Crawler {
 //        this.findElementByXPathWait("//span[@text()='Show results']/parent::button", 20).click();
     }
 
-    private WebElement findNeededElem(List<WebElement> regionsList) throws MissingRegionException {
+
+    private void inputRegion() throws InterruptedException {
+        while (true) {
+            WebElement locationInput =  this.findElementByXPathWait(
+                    "//input[@aria-label='Add a location']", 20);
+
+            List<WebElement> formButtons =  this.findElementsByXPathWait(
+                    "//input[@aria-label='Add a location']/ancestor::form//button", 20);
+
+            locationInput.clear();
+            locationInput.sendKeys("Toronto, Canada"); // Add dynamic parameters
+            Thread.sleep(2000);
+
+            try {
+                List<WebElement> lstOfRegions = this.findElementsByXPathWait(
+                                "//div[contains(@class, 'triggered-content')]//div[contains(@id, 'basic-result')]", 20);
+                WebElement targetRegion = this.findNeededRegion(lstOfRegions);
+                targetRegion.click();
+
+                WebElement enterButton = formButtons.stream().filter((elem) -> elem.getText().equals("Show results")).toList().get(0);
+                enterButton.click();
+                break;
+            } catch (StaleElementReferenceException ignored) {
+            } catch (MissingRegionException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
+    }
+
+    private WebElement findNeededRegion(List<WebElement> regionsList) throws MissingRegionException {
         for (WebElement region : regionsList) {
             String regionName = region.getText();
             if (regionName.contains("Toronto") && regionName.contains("Canada")) {

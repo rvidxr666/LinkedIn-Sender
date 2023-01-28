@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class Main {
-    public static void main(String[] args) throws RuntimeException, MissingRegionException {
+    public static void main(String[] args) throws RuntimeException, InterruptedException {
 
         System.setProperty("webdriver.chrome.driver", System.getenv("SELENIUM_PATH"));
         System.out.println(System.getProperty("user.dir"));
