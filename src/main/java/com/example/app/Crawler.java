@@ -30,11 +30,6 @@ public class Crawler {
         this.driver.get(this.url);
         this.loginToWebsite();
         this.getPeople();
-
-
-//        String loginFormXpath = "//div[@class='sign-in-form__form-input-container']//input";
-//        List<WebElement> elems =  driver.findElements(new By.ByXPath(loginFormXpath));
-//        System.out.println(elems);
     }
 
     private WebElement findElementByXPath(String Xpath) {
@@ -72,37 +67,6 @@ public class Crawler {
         this.findElementByXPathWait("//button[text()='People']", 20).click();
         this.findElementByXPathWait("//button[text()='Locations']", 20).click();
         this.inputRegion();
-
-        // input Add a location
-//        WebElement locationInput =  this.findElementByXPathWait(
-//                "//input[@aria-label='Add a location']", 20);
-//
-//        locationInput.sendKeys("Toronto, Canada"); // Need to add a country and city as an input parameter
-//
-//        // Find the region options provided by LinkedIn
-//        this.findElementsByXPathWait(
-//                "//div[contains(@class, 'triggered-content')]//div[contains(@id, 'basic-result')]", 20)
-//                .get(0).click();
-
-//        if (targetRegion == null) {
-//            throw new MissingRegionException("Provided region is not supported!");
-//        }
-//
-//        targetRegion.click();
-
-//        lst.get(0).click();
-
-        // Find the needed option
-//        try {
-//            WebElement region = this.findNeededElem(lst);
-//            System.out.println(region.getText());
-//        } catch (MissingRegionException e) {
-//            throw new MissingRegionException(e.getMessage());
-//        }
-
-
-        // Button
-//        this.findElementByXPathWait("//span[@text()='Show results']/parent::button", 20).click();
     }
 
 

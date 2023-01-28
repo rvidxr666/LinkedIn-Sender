@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
-
+// Need to be rebuilt
 public class CommandParser {
     public String[] args;
 
@@ -15,7 +15,7 @@ public class CommandParser {
         this.args = args;
     }
 
-    public HashMap<String,String> parseArguments() {
+    public HashMap<String,String> parseArguments() throws Exception {
         Options options = new Options();
 
         Option email = new Option("e", "email", true, "User email");
@@ -46,9 +46,8 @@ public class CommandParser {
             formatter.printHelp("User Profile Info", options);
             System.exit(1);
         }
-
-        return new HashMap<String, String>();
-    }
+        throw new Exception("Unexpected Error Occured");
+        }
 
     private HashMap<String, String> structUserData(CommandLine parser) {
         HashMap<String, String> userData = new HashMap<>();
