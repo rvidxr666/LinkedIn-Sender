@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class Main {
-    public static void main(String[] args) throws RuntimeException {
+    public static void main(String[] args) throws RuntimeException, MissingRegionException {
 
         System.setProperty("webdriver.chrome.driver", System.getenv("SELENIUM_PATH"));
         System.out.println(System.getProperty("user.dir"));
@@ -20,10 +20,8 @@ public class Main {
 
          // Selenium Logic
         Crawler crawler = new Crawler(
-                userData.get("email"),
-                userData.get("password"),
-                userData.get("department"),
-                userData.get("message")
+                new User(userData.get("email"), userData.get("password")),
+                new Data(userData.get("department"), userData.get("message"))
         );
 
         crawler.startCrawling();
