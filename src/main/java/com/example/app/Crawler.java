@@ -29,8 +29,16 @@ public class Crawler {
     public void startCrawling() throws InterruptedException {
         this.driver.get(this.url);
         this.loginToWebsite();
+        this.foldMessenger();
         this.getPeople();
     }
+
+    private void foldMessenger() {
+        List<WebElement> lstOfButtons = this.findElementsByXPathWait(
+                "//button[contains(@class, 'msg-overlay-bubble-header__control')]", 20);
+        lstOfButtons.get(lstOfButtons.size()-1).click();
+    }
+
 
     private WebElement findElementByXPath(String Xpath) {
         WebElement targetElement =  this.driver.findElement(new By.ByXPath(Xpath));
@@ -60,8 +68,56 @@ public class Crawler {
     private void getPeople() throws InterruptedException {
         this.searchBar();
         this.filterPeople();
+        this.profileIteration();
     }
 
+    private void profileIteration() throws InterruptedException {
+        while (true) {
+            List<WebElement> lstOfElems = this.findElementsByXPathWait("//a[contains(@class,'app-aware-link  scale-down ')]", 20);
+            List<String> lstOfLinks= lstOfElems.stream().map((e) -> e.getAttribute("href")).toList();
+            this.driver.navigate().refresh();
+            String currUrl = this.driver.getCurrentUrl();
+
+            for (int i = 0; i<lstOfLinks.size(); i++) {
+                this.driver.get(lstOfLinks.get(i));
+
+                try {
+                    this.findElementByXPathWait("//div[@class='pvs-profile-actions ']//a", 20).click();
+                    this.findElementByXPathWait("//input[@placeholder='Subject (optional)']", 20).sendKeys(data.getTopic());
+                    this.findElementByXPathWait("//div[@aria-label='Write a message…']", 20)
+                            .sendKeys(this.data.getMessage());
+                } catch (TimeoutException e) {
+                    System.out.println("Timed out!");
+                }
+            }
+
+            // Main page
+            this.driver.get(currUrl);
+            Thread.sleep(4000);
+
+
+            // Next
+            this.scrollFunction();
+
+            WebElement button;
+            try {
+                button  = this.findElementByXPathWait("//button[@aria-label='Next']", 20);
+                button.click();
+            } catch (NotFoundException e) {
+                button = null;
+            }
+
+            if (button == null) {
+                break;
+            }
+        }
+
+    }
+
+    private void scrollFunction() throws InterruptedException {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        driver.findElement(By.tagName("body")).sendKeys(Keys.END);
+    }
 
     private void filterPeople() throws InterruptedException {
         this.findElementByXPathWait("//button[text()='People']", 20).click();
@@ -79,7 +135,7 @@ public class Crawler {
                     "//input[@aria-label='Add a location']/ancestor::form//button", 20);
 
             locationInput.clear();
-            locationInput.sendKeys("Toronto, Canada"); // Add dynamic parameters
+            locationInput.sendKeys(data.getCity() + ", " + data.getCountry()); // Add dynamic parameters
             Thread.sleep(2000);
 
             try {
@@ -103,7 +159,7 @@ public class Crawler {
     private WebElement findNeededRegion(List<WebElement> regionsList) throws MissingRegionException {
         for (WebElement region : regionsList) {
             String regionName = region.getText();
-            if (regionName.contains("Toronto") && regionName.contains("Canada")) {
+            if (regionName.contains(data.getCity()) && regionName.contains(data.getCountry())) {
                 return region;
             }
         }
