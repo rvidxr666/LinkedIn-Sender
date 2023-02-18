@@ -11,15 +11,24 @@ public class Main {
         System.setProperty("webdriver.chrome.driver", System.getenv("SELENIUM_PATH"));
         System.out.println(System.getProperty("user.dir"));
 
-        // Command Line Arguments (maybe will be reimplemented)
-        CommandParser parser = new CommandParser(args);
+        CommandParserExtra parser = new CommandParserExtra(args);
         HashMap<String, String> userData = parser.parseArguments();
 
-         // Selenium Logic
+        // Command Line Arguments (maybe will be reimplemented)
+//        CommandParser parser = new CommandParser(args);
+//        HashMap<String, String> userData = parser.parseArguments();
+//
+//         // Selenium Logic
         Crawler crawler = new Crawler(
-                new User(userData.get("email"), userData.get("password")),
-                new Data(userData.get("department"), userData.get("message"))
-        );
+                new User(userData.get("-e"), userData.get("-p")),
+                new Data(
+                         userData.get("-d"),
+                         userData.get("-t"),
+                         userData.get("-f"),
+                         userData.get("--country"),
+                         userData.get("--city")
+                    )
+                );
         crawler.startCrawling();
     }
 
